@@ -10,9 +10,6 @@ public abstract class Character {
     private Area area; // フィールド条件
     private Flyable flyable;
 
-    public Character() {
-    }
-
     public Character(String name) {
         this.name = name;
     }
