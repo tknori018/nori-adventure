@@ -3,6 +3,8 @@ package norisAdventure;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.lang.reflect.Array.set;
+
 public abstract class Human extends Character implements Creature {
     public record ItemRecord(Item item, int number) {
     } // inventoryの中身
@@ -14,10 +16,6 @@ public abstract class Human extends Character implements Creature {
     private static int money; // 所持金
     private static List<ItemRecord> inventory; // 持ち物
     private Weapon weapon; // Humanクラスの武器
-
-    public Human() {
-        super();
-    }
 
     public Human(String name) {
         super(name);
@@ -31,13 +29,13 @@ public abstract class Human extends Character implements Creature {
     @Override
     public void guard() {
         System.out.println(this.getName() + "は身を守った！");
-        // 攻撃軽減処理
+
+        // TODO: 攻撃軽減処理
     }
 
     public void viewAbility() {
-        String positionLabel = (this.position != null) ? this.position.getLabel() : "未設定";
         System.out.printf("名前: %-10s | 役職: %-5s | Lv: %2d | HP: %4d | MP: %4d | 力: %3d | 速: %3d | 次のLvまで: %5d XP\n",
-                getName(), positionLabel, getLv(), getHp(), getMp(), getPower(), getSpeed(),
+                getName(), getPosition().getLabel(), getLv(), getHp(), getMp(), getPower(), getSpeed(),
                 Math.max(0, this.experienceToNextLevel - this.experience));
     }
 
@@ -100,19 +98,19 @@ public abstract class Human extends Character implements Creature {
         switch (evolvedCharacter.getPosition()) {
             case HERO -> {
                 Saber saber = (Saber) evolvedCharacter;
-                Human.party.set(0, saber);
+                GameManager.party.set(0, saber);
             }
             case WARRIOR -> {
                 Berserker berserker = (Berserker) evolvedCharacter;
-                Human.party.set(1, berserker);
+                GameManager.party.set(1, berserker);
             }
             case WIZARD -> {
                 MagicEmperor magicEmperor = (MagicEmperor) evolvedCharacter;
-                Human.party.set(2, magicEmperor);
+                GameManager.party.set(2, magicEmperor);
             }
             case HEALER -> {
                 Saint saint = (Saint) evolvedCharacter;
-                Human.party.set(3, saint);
+                GameManager.party.set(3, saint);
             }
         };
     }
