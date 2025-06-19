@@ -42,8 +42,13 @@ public class Saint extends Healer {
         int powerUp = 3;
         int speedUp = 3;
 
-        setHp(getHp() + hpUp);
-        setMp(getMp() + mpUp);
+        int totalHp = getMaxHp() + hpUp;
+        int totalMp = getMaxMp() + mpUp;
+
+        setHp(totalHp);
+        setMp(totalMp);
+        setMaxHp(totalHp);
+        setMaxMp(totalMp);
         setPower(getPower() + powerUp);
         setSpeed(getSpeed() + speedUp);
         System.out.println("HPが" + hpUp + ", MPが" + mpUp + ", ちからが" + powerUp + ", すばやさが" + speedUp + "上がった！");

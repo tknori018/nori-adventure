@@ -3,11 +3,8 @@ package norisAdventure;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.reflect.Array.set;
-
 public abstract class Human extends Character implements Creature {
-    public record ItemRecord(Item item, int number) {
-    } // inventoryの中身
+    public record ItemRecord(Item item, int number) {} // inventoryの中身
 
     public static List<Human> party = new ArrayList<>();
     private Position position;
@@ -34,8 +31,8 @@ public abstract class Human extends Character implements Creature {
     }
 
     public void viewAbility() {
-        System.out.printf("名前: %-10s | 役職: %-5s | Lv: %2d | HP: %4d | MP: %4d | 力: %3d | 速: %3d | 次のLvまで: %5d XP\n",
-                getName(), getPosition().getLabel(), getLv(), getHp(), getMp(), getPower(), getSpeed(),
+        System.out.printf("名前: %-10s | 役職: %-5s | Lv: %2d | HP: %4d/%4d | MP: %4d/%4d | ちから: %3d | すばやさ: %3d | 次のLvまで: %5d XP\n",
+                getName(), getPosition().getLabel(), getLv(), getHp(), getMaxHp(), getMp(), getMaxMp(), getPower(), getSpeed(),
                 Math.max(0, this.experienceToNextLevel - this.experience));
     }
 
@@ -51,7 +48,7 @@ public abstract class Human extends Character implements Creature {
         System.out.println("★☆★ " + getName() + " は レベル " + getLv() + " に上がった！ ★☆★");
 
         // 次のレベルアップに必要な経験値を更新
-        int newExpToNext = (int) (this.experienceToNextLevel * 1.2);
+        int newExpToNext = (int) (this.experienceToNextLevel * 1.1);
         setExperienceToNextLevel(newExpToNext);
 
         // サブクラスで定義されたステータス上昇を呼び出す
@@ -96,23 +93,24 @@ public abstract class Human extends Character implements Creature {
         }
 
         switch (evolvedCharacter.getPosition()) {
-            case HERO -> {
+            case SABER -> {
                 Saber saber = (Saber) evolvedCharacter;
                 GameManager.party.set(0, saber);
             }
-            case WARRIOR -> {
+            case BERSERKER -> {
                 Berserker berserker = (Berserker) evolvedCharacter;
                 GameManager.party.set(1, berserker);
             }
-            case WIZARD -> {
+            case MAGIC_EMPEROR -> {
                 MagicEmperor magicEmperor = (MagicEmperor) evolvedCharacter;
                 GameManager.party.set(2, magicEmperor);
             }
-            case HEALER -> {
+            case SAINT -> {
                 Saint saint = (Saint) evolvedCharacter;
                 GameManager.party.set(3, saint);
             }
-        };
+        }
+        ;
     }
 
     // getter, setter
