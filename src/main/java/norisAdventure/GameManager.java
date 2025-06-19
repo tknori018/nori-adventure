@@ -58,12 +58,22 @@ public class GameManager {
     public void gameLoop() {
         System.out.println("\n--- 冒険の始まり ---");
         while (true) {
-            System.out.println("\nコマンドを選択してください: 1. 戦う  2. ステータスを見る  9. 冒険を終える");
+            System.out.println("--------------コマンドを選択してください--------------");
+            System.out.println("""
+                    1. 戦う
+                    2. ステータスを見る
+                    3. インベントリーの確認
+                    4. アイテムショップ
+                    9. 冒険を終える
+                    """);
+            System.out.println("--------------------------------------------------");
             System.out.print("> ");
             String command = scanner.nextLine();
             switch (command) {
                 case "1" ->processAfterBattle(500000); // 仮の戦闘処理: 経験値を50万獲得する
                 case "2" -> viewPartyStatus();
+                case "3" -> Human.showInventory();
+                case "4" -> // itemShop
                 case "9" -> {
                     System.out.println("冒険を終了します。");
                     return; // ループを抜けてゲーム終了

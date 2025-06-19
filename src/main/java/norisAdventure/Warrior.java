@@ -21,8 +21,13 @@ public class Warrior extends Human {
         int powerUp = 5;
         int speedUp = 2;
 
-        setHp(getHp() + hpUp);
-        setMp(getMp() + mpUp);
+        int totalHp = getMaxHp() + hpUp;
+        int totalMp = getMaxMp() + mpUp;
+
+        setHp(totalHp);
+        setMp(totalMp);
+        setMaxHp(totalHp);
+        setMaxMp(totalMp);
         setPower(getPower() + powerUp);
         setSpeed(getSpeed() + speedUp);
         System.out.println("HPが" + hpUp + ", MPが" + mpUp + ", ちからが" + powerUp + ", すばやさが" + speedUp + "上がった！");

@@ -4,7 +4,9 @@ public abstract class Character {
     private String name;
     private int lv;
     private int hp;
+    private int maxHp;
     private int mp;
+    private int maxMp;
     private int power;
     private int speed;
     private Area area; // フィールド条件
@@ -12,6 +14,22 @@ public abstract class Character {
 
     public Character(String name) {
         this.name = name;
+    }
+
+    public int getMaxHp() {
+        return maxHp;
+    }
+
+    public void setMaxHp(int maxHp) {
+        this.maxHp = maxHp;
+    }
+
+    public int getMaxMp() {
+        return maxMp;
+    }
+
+    public void setMaxMp(int maxMp) {
+        this.maxMp = maxMp;
     }
 
     public String getName() {
