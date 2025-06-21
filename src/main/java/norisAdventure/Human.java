@@ -3,21 +3,31 @@ package norisAdventure;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.lang.reflect.Array.set;
-
 public abstract class Human extends Character implements Creature {
-    public record ItemRecord(Item item, int number) {} // inventoryの中身
 
-    public static List<Human> party = new ArrayList<>();
     private Position position;
+    private boolean gardBoolean;
+    private double powerBuff;
+    private double speedBuff;
+    private double defenseBuff;
+    private double powerUpDuration;
+    private double speedUpDuration;
+    private double defenseUpDuration;
     private int experience; // 現在の総経験値
     private int experienceToNextLevel; // 次のレベルまでに必要な経験値
     private static int money; // 所持金
-    private static List<ItemRecord> inventory; // 持ち物
+    private static List<ItemRecord> inventory = new ArrayList<>();// 持ち物
     private Weapon weapon; // Humanクラスの武器
 
     public Human(String name) {
         super(name);
+        this.gardBoolean = false;
+        this.powerBuff = 1;
+        this.speedBuff = 1;
+        this.defenseBuff = 1;
+        this.powerUpDuration = 0;
+        this.speedUpDuration = 0;
+        this.defenseUpDuration = 0;
         this.experience = 0;
         this.experienceToNextLevel = 100;
         setArea(Area.NORMAL);
@@ -29,7 +39,9 @@ public abstract class Human extends Character implements Creature {
     public void guard() {
         System.out.println(this.getName() + "は身を守った！");
 
-        // TODO: 攻撃軽減処理
+        // 攻撃軽減処理
+        setDefenseBuff( (int) (getDefenseBuff() * 1.5));
+        this.gardBoolean = true;
     }
 
     public void viewAbility() {
@@ -114,6 +126,15 @@ public abstract class Human extends Character implements Creature {
         };
     }
 
+    public static void showInventory() {
+        System.out.println("--------------------------------------------------");
+        inventory.stream()
+                .map(item -> item.toString())
+                .forEach(System.out::println);
+        System.out.println("--------------------------------------------------");
+        // TODO: use,equipメソッドの実行
+    }
+
     // getter, setter
     public Position getPosition() {
         return position;
@@ -137,6 +158,62 @@ public abstract class Human extends Character implements Creature {
 
     public void setExperienceToNextLevel(int experienceToNextLevel) {
         this.experienceToNextLevel = experienceToNextLevel;
+    }
+
+    public boolean isGardBoolean() {
+        return gardBoolean;
+    }
+
+    public void setGardBoolean(boolean gardBoolean) {
+        this.gardBoolean = gardBoolean;
+    }
+
+    public double getPowerBuff() {
+        return powerBuff;
+    }
+
+    public void setPowerBuff(double powerBuff) {
+        this.powerBuff = powerBuff;
+    }
+
+    public double getSpeedBuff() {
+        return speedBuff;
+    }
+
+    public void setSpeedBuff(double speedBuff) {
+        this.speedBuff = speedBuff;
+    }
+
+    public double getDefenseBuff() {
+        return defenseBuff;
+    }
+
+    public void setDefenseBuff(double defenseBuff) {
+        this.defenseBuff = defenseBuff;
+    }
+
+    public double getPowerUpDuration() {
+        return powerUpDuration;
+    }
+
+    public void setPowerUpDuration(double powerUpDuration) {
+        this.powerUpDuration = powerUpDuration;
+    }
+
+    public double getSpeedUpDuration() {
+        return speedUpDuration;
+    }
+
+    public void setSpeedUpDuration(double speedUpDuration) {
+        this.speedUpDuration = speedUpDuration;
+    }
+
+    public double getDefenseUpDuration() {
+        return defenseUpDuration;
+    }
+
+    public void setDefenseUpDuration(double defenseUpDuration) {
+        this.defenseUpDuration = defenseUpDuration;
     }
 
     public static int getMoney() {

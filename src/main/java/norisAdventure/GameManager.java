@@ -22,7 +22,7 @@ public class GameManager {
      * パーティーメンバーの名前を入力させ、インスタンスを生成・初期化する
      */
     private void initializeParty() {
-        this.party = new ArrayList<>();
+        party = new ArrayList<>();
         String[] positions = {Position.HERO.getLabel(), Position.WARRIOR.getLabel(), Position.WIZARD.getLabel(), Position.HEALER.getLabel()};
         String[] names = new String[4];
 
@@ -73,7 +73,7 @@ public class GameManager {
                 case "1" ->processAfterBattle(500000); // 仮の戦闘処理: 経験値を50万獲得する
                 case "2" -> viewPartyStatus();
                 case "3" -> Human.showInventory();
-                case "4" -> // itemShop
+//                case "4" -> // itemShop
                 case "9" -> {
                     System.out.println("冒険を終了します。");
                     return; // ループを抜けてゲーム終了
@@ -89,9 +89,7 @@ public class GameManager {
      */
     public void processAfterBattle(int earnedXp) {
         System.out.println("\n--- 戦闘終了: " + earnedXp + " の経験値を獲得！ ---");
-
-        List<Human> nextParty = new ArrayList<>();
-        for (Human member : this.party) {
+        for (Human member : party) {
             // 経験値を与える
             member.gainExperience(earnedXp);
         }
@@ -102,7 +100,7 @@ public class GameManager {
      */
     public void viewPartyStatus() {
         System.out.println("----------------------------------------------------------------------------------------------------");
-        for (Human member : this.party) {
+        for (Human member : party) {
             member.viewAbility();
         }
         System.out.println("----------------------------------------------------------------------------------------------------");
