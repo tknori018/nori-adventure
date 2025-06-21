@@ -1,9 +1,9 @@
 package norisAdventure;
 
 public enum WeaponType {
-    Sword("剣"),
-    Axe("斧"),
-    Wand("杖");
+    SWORD("剣"),
+    AXE("斧"),
+    WAND("杖");
 
     private final String label;
 

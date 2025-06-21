@@ -1,23 +1,37 @@
 package norisAdventure;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Scanner;
 
-import static java.lang.reflect.Array.set;
+import static norisAdventure.GameManager.party;
 
 public abstract class Human extends Character implements Creature {
-    public record ItemRecord(Item item, int number) {} // inventoryの中身
 
-    public static List<Human> party = new ArrayList<>();
     private Position position;
+    private boolean gardBoolean;
+    private double powerBuff;
+    private double speedBuff;
+    private double defenseBuff;
+    private double powerUpDuration;
+    private double speedUpDuration;
+    private double defenseUpDuration;
     private int experience; // 現在の総経験値
     private int experienceToNextLevel; // 次のレベルまでに必要な経験値
     private static int money; // 所持金
-    private static List<ItemRecord> inventory; // 持ち物
+    private static List<ItemRecord> inventory = new ArrayList<>();// 持ち物
     private Weapon weapon; // Humanクラスの武器
 
     public Human(String name) {
         super(name);
+        this.gardBoolean = false;
+        this.powerBuff = 1;
+        this.speedBuff = 1;
+        this.defenseBuff = 1;
+        this.powerUpDuration = 0;
+        this.speedUpDuration = 0;
+        this.defenseUpDuration = 0;
         this.experience = 0;
         this.experienceToNextLevel = 100;
         setArea(Area.NORMAL);
@@ -29,13 +43,13 @@ public abstract class Human extends Character implements Creature {
     public void guard() {
         System.out.println(this.getName() + "は身を守った！");
 
-        // TODO: 攻撃軽減処理
+        // 攻撃軽減処理
+        setDefenseBuff((int) (getDefenseBuff() * 1.5));
+        this.gardBoolean = true;
     }
 
     public void viewAbility() {
-        System.out.printf("名前: %-10s | 役職: %-5s | Lv: %2d | HP: %4d | MP: %4d | 力: %3d | 速: %3d | 次のLvまで: %5d XP\n",
-                getName(), getPosition().getLabel(), getLv(), getHp(), getMp(), getPower(), getSpeed(),
-                Math.max(0, this.experienceToNextLevel - this.experience));
+        System.out.printf("名前: %-10s | 役職: %-5s | Lv: %2d | HP: %4d | MP: %4d | 力: %3d | 速: %3d | 次のLvまで: %5d XP\n", getName(), getPosition().getLabel(), getLv(), getHp(), getMp(), getPower(), getSpeed(), Math.max(0, this.experienceToNextLevel - this.experience));
     }
 
     // 各サブクラスで実装するレベルアップ時のステータス上昇処理
@@ -97,21 +111,112 @@ public abstract class Human extends Character implements Creature {
         switch (evolvedCharacter.getPosition()) {
             case HERO -> {
                 Saber saber = (Saber) evolvedCharacter;
-                GameManager.party.set(0, saber);
+                party.set(0, saber);
             }
             case WARRIOR -> {
                 Berserker berserker = (Berserker) evolvedCharacter;
-                GameManager.party.set(1, berserker);
+                party.set(1, berserker);
             }
             case WIZARD -> {
                 MagicEmperor magicEmperor = (MagicEmperor) evolvedCharacter;
-                GameManager.party.set(2, magicEmperor);
+                party.set(2, magicEmperor);
             }
             case HEALER -> {
                 Saint saint = (Saint) evolvedCharacter;
-                GameManager.party.set(3, saint);
+                party.set(3, saint);
             }
-        };
+        }
+        ;
+    }
+
+    /**
+     * パーティーの持ち物を、種類別・価格順にソートして綺麗に表示します。
+     */
+    public static void showInventory() {
+        System.out.println("\n--- もちもの ---");
+        List<ItemRecord> inventory = getInventory();
+
+        if (inventory.isEmpty()) {
+            System.out.println("なにももっていない");
+            System.out.println("----------------");
+            return;
+        }
+
+        // アイテムの種類(sortOrder)で昇順ソート
+        // 種類が同じ場合は、価格(price)で昇順ソート
+        Comparator<ItemRecord> itemComparator = Comparator.comparing((ItemRecord r) -> r.item().getItemPosition().getSortOrder()).thenComparing((ItemRecord r) -> r.item().getPrice());
+
+        // Stream APIを使ってソートし、結果を表示
+        inventory.stream().sorted(itemComparator).forEach(record -> {
+            System.out.printf("・%-15s x%-2d | %s\n", record.item().getName(), record.posseesedNumber(), record.item().getDescription());
+        });
+
+        System.out.println("----------------");
+
+
+        loop3: // コマンド3のループ
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("--------------コマンドを選択してください--------------");
+            System.out.println("""
+                    1. アイテムを使用
+                    2. 武器を装備
+                    3. 戻る
+                    """);
+            System.out.println("--------------------------------------------------");
+            System.out.print("> ");
+            String command = scanner.nextLine();
+            switch (command) {
+                case "1" -> {
+                    // アイテムの選択
+                    System.out.println("使用するアイテムを入力してください");
+                    System.out.print("> ");
+                    String itemName = scanner.nextLine();
+                    for (ItemRecord itemRecord : Human.getInventory()) {
+                        if (itemRecord.item().getName().equals(itemName)) {
+                            // 使用対象の選択
+                            System.out.println("誰に使用しますか？");
+                            System.out.print("> ");
+                            String targetHumanName = scanner.nextLine();
+                            for (Human human : party) {
+                                if (human.getName().equals(targetHumanName)) {
+                                    itemRecord.useInBack(human);
+                                    continue loop3;
+                                }
+                            }
+                            System.out.println(targetHumanName + "はいません！");
+                        }
+                    }
+                    System.out.println(itemName + "がみつかりません！");
+                }
+                case "2" -> {
+                    // 武器の選択
+                    System.out.println("使用する武器を入力してください");
+                    System.out.print("> ");
+                    String itemName = scanner.nextLine();
+                    for (ItemRecord itemRecord : Human.getInventory()) {
+                        if (itemRecord.item().getName().equals(itemName)) {
+                            // 使用対象の選択
+                            System.out.println("誰に装備しますか？");
+                            System.out.print("> ");
+                            String targetHumanName = scanner.nextLine();
+                            for (Human human : party) {
+                                if (human.getName().equals(targetHumanName)) {
+                                    itemRecord.equip(human);
+                                    continue loop3;
+                                }
+                            }
+                            System.out.println(targetHumanName + "はいません！");
+                        }
+                    }
+                    System.out.println(itemName + "がみつかりません！");
+                }
+                case "3" -> {
+                    break loop3;
+                }
+                default -> System.out.println("正しいコマンドを入力してください。");
+            }
+        }
     }
 
     // getter, setter
@@ -137,6 +242,64 @@ public abstract class Human extends Character implements Creature {
 
     public void setExperienceToNextLevel(int experienceToNextLevel) {
         this.experienceToNextLevel = experienceToNextLevel;
+    }
+
+// getter, setter
+
+    public boolean isGardBoolean() {
+        return gardBoolean;
+    }
+
+    public void setGardBoolean(boolean gardBoolean) {
+        this.gardBoolean = gardBoolean;
+    }
+
+    public double getPowerBuff() {
+        return powerBuff;
+    }
+
+    public void setPowerBuff(double powerBuff) {
+        this.powerBuff = powerBuff;
+    }
+
+    public double getSpeedBuff() {
+        return speedBuff;
+    }
+
+    public void setSpeedBuff(double speedBuff) {
+        this.speedBuff = speedBuff;
+    }
+
+    public double getDefenseBuff() {
+        return defenseBuff;
+    }
+
+    public void setDefenseBuff(double defenseBuff) {
+        this.defenseBuff = defenseBuff;
+    }
+
+    public double getPowerUpDuration() {
+        return powerUpDuration;
+    }
+
+    public void setPowerUpDuration(double powerUpDuration) {
+        this.powerUpDuration = powerUpDuration;
+    }
+
+    public double getSpeedUpDuration() {
+        return speedUpDuration;
+    }
+
+    public void setSpeedUpDuration(double speedUpDuration) {
+        this.speedUpDuration = speedUpDuration;
+    }
+
+    public double getDefenseUpDuration() {
+        return defenseUpDuration;
+    }
+
+    public void setDefenseUpDuration(double defenseUpDuration) {
+        this.defenseUpDuration = defenseUpDuration;
     }
 
     public static int getMoney() {

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import static norisAdventure.ItemShop.openShopMenu;
+
 public class GameManager {
     // GameManagerがパーティーリストを管理する
     public static List<Human> party;
@@ -22,7 +24,7 @@ public class GameManager {
      * パーティーメンバーの名前を入力させ、インスタンスを生成・初期化する
      */
     private void initializeParty() {
-        this.party = new ArrayList<>();
+        party = new ArrayList<>();
         String[] positions = {Position.HERO.getLabel(), Position.WARRIOR.getLabel(), Position.WIZARD.getLabel(), Position.HEALER.getLabel()};
         String[] names = new String[4];
 
@@ -63,17 +65,17 @@ public class GameManager {
                     1. 戦う
                     2. ステータスを見る
                     3. インベントリーの確認
-                    4. アイテムショップ
+                    8. アイテムショップ
                     9. 冒険を終える
                     """);
             System.out.println("--------------------------------------------------");
             System.out.print("> ");
-            String command = scanner.nextLine();
-            switch (command) {
-                case "1" ->processAfterBattle(500000); // 仮の戦闘処理: 経験値を50万獲得する
+            String mainCommand = scanner.nextLine();
+            switch (mainCommand) {
+                case "1" -> processAfterBattle(500000); // 仮の戦闘処理: 経験値を50万獲得する
                 case "2" -> viewPartyStatus();
                 case "3" -> Human.showInventory();
-                case "4" -> // itemShop
+                case "8" -> openShopMenu();
                 case "9" -> {
                     System.out.println("冒険を終了します。");
                     return; // ループを抜けてゲーム終了
@@ -85,13 +87,12 @@ public class GameManager {
 
     /**
      * 戦闘後などの経験値処理
+     *
      * @param earnedXp 獲得した経験値
      */
     public void processAfterBattle(int earnedXp) {
         System.out.println("\n--- 戦闘終了: " + earnedXp + " の経験値を獲得！ ---");
-
-        List<Human> nextParty = new ArrayList<>();
-        for (Human member : this.party) {
+        for (Human member : party) {
             // 経験値を与える
             member.gainExperience(earnedXp);
         }
@@ -102,7 +103,7 @@ public class GameManager {
      */
     public void viewPartyStatus() {
         System.out.println("----------------------------------------------------------------------------------------------------");
-        for (Human member : this.party) {
+        for (Human member : party) {
             member.viewAbility();
         }
         System.out.println("----------------------------------------------------------------------------------------------------");
