@@ -21,9 +21,21 @@ public class ItemShop {
             BuffItem.SUBAYASA_DAMA,
 
             // 武器
-            Axe.KINO_ONO,
+            // Sword
             Sword.KINO_TSURUGI,
-            Wand.KINO_TSUE
+            Sword.HAGANE_NO_TSURUGI,
+            Sword.MAJIN_NO_TSURUGI,
+            Sword.EXCALIBUR,
+            // Axe
+            Axe.KINO_ONO,
+            Axe.BATTLE_AXE,
+            Axe.HAO_NO_ONO,
+            Axe.MJOLNIR,
+            // Wand
+            Wand.KINO_TSUE,
+            Wand.AURORA_NO_TSUE,
+            Wand.KENJA_NO_TSUE,
+            Wand.LAPLACE_NO_TSUE
     );
 
     private static final Scanner scanner = new Scanner(System.in);
