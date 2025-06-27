@@ -34,7 +34,7 @@ public class Hero extends Human {
     }
 
     @Override
-    public void attack() {
+    public void displayAttackMessage() {
         System.out.println(this.getName() + "は剣で攻撃した！");
     }
 }

@@ -1,12 +1,6 @@
 package norisAdventure;
 
 public class Saint extends Healer {
-
-    public Saint(String name) {
-        super(name);
-        this.setPosition(Position.SAINT);
-    }
-
     /**
      * 進化時に呼ばれるコンストラクタ
      * @param originalCharacter 進化元のキャラクター
@@ -18,20 +12,31 @@ public class Saint extends Healer {
         this.setLv(originalCharacter.getLv());
         this.setHp(originalCharacter.getHp());
         this.setMp(originalCharacter.getMp());
+        this.setMaxHp(originalCharacter.getMaxHp());
+        this.setMaxMp(originalCharacter.getMaxMp());
         this.setPower(originalCharacter.getPower());
         this.setSpeed(originalCharacter.getSpeed());
         this.setExperience(originalCharacter.getExperience());
         this.setExperienceToNextLevel(originalCharacter.getExperienceToNextLevel());
+        this.setWeapon(originalCharacter.getWeapon());
         this.setPosition(Position.SAINT);
 
-        // 持ち物などもここで引き継ぐ
+        // 進化ボーナスを追加 (全体的に大幅に上昇)
+        int hpBonus = 100;
+        int mpBonus = 50;
+        int powerBonus = 60;
+        int speedBonus = 40;
 
+        // 最大値にもボーナスを適用
+        this.setMaxHp(this.getMaxHp() + hpBonus);
+        this.setMaxMp(this.getMaxMp() + mpBonus);
 
-        // 進化ボーナスを追加 (MPとHPが大幅に上昇)
-        int hpBonus = 80;
-        int mpBonus = 150;
-        this.setHp(this.getHp() + hpBonus);
-        this.setMp(this.getMp() + mpBonus);
+        // 現在のHPとMPを最大値まで回復
+        this.setHp(this.getMaxHp());
+        this.setMp(this.getMaxMp());
+
+        this.setPower(this.getPower() + powerBonus);
+        this.setSpeed(this.getSpeed() + speedBonus);
     }
 
     @Override
@@ -55,7 +60,7 @@ public class Saint extends Healer {
     }
 
     @Override
-    public void attack() {
+    public void displayAttackMessage() {
         System.out.println(this.getName() + "は聖なる光を放った！");
     }
 }

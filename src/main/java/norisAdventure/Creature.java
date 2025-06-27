@@ -1,6 +1,6 @@
 package norisAdventure;
 
 public interface Creature {
-    void attack(); // 回避要素あり、クリティカルあり
+    void attack(Character character); // 回避要素あり、クリティカルあり
     void guard();
 }

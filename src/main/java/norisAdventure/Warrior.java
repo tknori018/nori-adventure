@@ -34,7 +34,7 @@ public class Warrior extends Human {
     }
 
     @Override
-    public void attack() {
+    public void displayAttackMessage() {
         System.out.println(this.getName() + "は斧で力強く斬りつけた！");
     }
 }

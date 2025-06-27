@@ -10,13 +10,6 @@ import static norisAdventure.GameManager.party;
 public abstract class Human extends Character implements Creature {
 
     private Position position;
-    private boolean gardBoolean;
-    private double powerBuff;
-    private double speedBuff;
-    private double defenseBuff;
-    private double powerUpDuration;
-    private double speedUpDuration;
-    private double defenseUpDuration;
     private int experience; // 現在の総経験値
     private int experienceToNextLevel; // 次のレベルまでに必要な経験値
     private static int money; // 所持金
@@ -25,31 +18,17 @@ public abstract class Human extends Character implements Creature {
 
     public Human(String name) {
         super(name);
-        this.gardBoolean = false;
-        this.powerBuff = 1;
-        this.speedBuff = 1;
-        this.defenseBuff = 1;
-        this.powerUpDuration = 0;
-        this.speedUpDuration = 0;
-        this.defenseUpDuration = 0;
         this.experience = 0;
         this.experienceToNextLevel = 100;
         setArea(Area.NORMAL);
         this.weapon = null;
         setFlyable(Flyable.FALSE);
-    }
-
-    @Override
-    public void guard() {
-        System.out.println(this.getName() + "は身を守った！");
-
-        // 攻撃軽減処理
-        setDefenseBuff((int) (getDefenseBuff() * 1.5));
-        this.gardBoolean = true;
+        // 動作確認用
+        money = 100000;
     }
 
     public void viewAbility() {
-        System.out.printf("名前: %-10s | 役職: %-5s | Lv: %2d | HP: %4d | MP: %4d | 力: %3d | 速: %3d | 次のLvまで: %5d XP\n", getName(), getPosition().getLabel(), getLv(), getHp(), getMp(), getPower(), getSpeed(), Math.max(0, this.experienceToNextLevel - this.experience));
+        System.out.printf("名前: %-10s | 役職: %-5s | Lv: %2d | HP: %4d/%4d | MP: %4d/%4d | 力: %3d | 速: %3d | 武器: %-8s | 次のLvまで: %5d XP\n", getName(), getPosition().getLabel(), getLv(), getHp(), getMaxHp(), getMp(), getMaxMp(), getPower(), getSpeed(), getWeapon(), Math.max(0, this.experienceToNextLevel - this.experience));
     }
 
     // 各サブクラスで実装するレベルアップ時のステータス上昇処理
@@ -64,7 +43,7 @@ public abstract class Human extends Character implements Creature {
         System.out.println("★☆★ " + getName() + " は レベル " + getLv() + " に上がった！ ★☆★");
 
         // 次のレベルアップに必要な経験値を更新
-        int newExpToNext = (int) (this.experienceToNextLevel * 1.2);
+        int newExpToNext = (int) (this.experienceToNextLevel * 1.15);
         setExperienceToNextLevel(newExpToNext);
 
         // サブクラスで定義されたステータス上昇を呼び出す
@@ -78,16 +57,38 @@ public abstract class Human extends Character implements Creature {
         if (this.getLv() >= 99) return; // レベルキャップ
 
         System.out.println(this.getName() + " は " + gainedExperience + " の経験値を獲得した！");
+        // 経験値を現在のオブジェクトに加算します。この値は進化後の新しいオブジェクトに引き継がれます。
         this.experience += gainedExperience;
 
-        while (this.experience >= this.experienceToNextLevel) {
-            levelUp();
-            if (this.getLv() >= 99) {
-                this.experience = 0;
+        // パーティーリスト内での自分の現在のインデックスを探します。名前は進化後も変わらないため、識別に利用します。
+        int partyIndex = -1;
+        for (int i = 0; i < party.size(); i++) {
+            if (party.get(i).getName().equals(this.getName())) {
+                partyIndex = i;
                 break;
             }
         }
-        viewAbility(); // レベルアップ後のステータスを表示
+
+        // 万が一リストに存在しない場合は処理を終了します。
+        if (partyIndex == -1) {
+            System.out.println("エラー: パーティーにキャラクターが見つかりません。");
+            return;
+        }
+
+        // パーティーリストからキャラクターの最新のインスタンスを取得します。
+        Human currentCharacter = party.get(partyIndex);
+
+        // レベルアップのループ処理。進化によってインスタンスが変わりうるため、常にパーティーリストから最新の情報を取得してループを継続します。
+        while (currentCharacter.getLv() < 99 && currentCharacter.getExperience() >= currentCharacter.getExperienceToNextLevel()) {
+            currentCharacter.levelUp(); // levelUpは内部でevolveを呼び出し、partyリストを更新する可能性があります。
+
+            // levelUpが実行された後、キャラクターが進化している可能性があるため、
+            // partyリストから再度インスタンスを取得し直し、常に最新の状態でループの判定を行います。
+            currentCharacter = party.get(partyIndex);
+        }
+
+        // 全てのレベルアップ処理が終わった後の最終的なステータスを表示します。
+        currentCharacter.viewAbility();
     }
 
     public void evolve() {
@@ -109,19 +110,19 @@ public abstract class Human extends Character implements Creature {
         }
 
         switch (evolvedCharacter.getPosition()) {
-            case HERO -> {
+            case SABER -> {
                 Saber saber = (Saber) evolvedCharacter;
                 party.set(0, saber);
             }
-            case WARRIOR -> {
+            case BERSERKER -> {
                 Berserker berserker = (Berserker) evolvedCharacter;
                 party.set(1, berserker);
             }
-            case WIZARD -> {
+            case MAGIC_EMPEROR -> {
                 MagicEmperor magicEmperor = (MagicEmperor) evolvedCharacter;
                 party.set(2, magicEmperor);
             }
-            case HEALER -> {
+            case SAINT -> {
                 Saint saint = (Saint) evolvedCharacter;
                 party.set(3, saint);
             }
@@ -152,71 +153,6 @@ public abstract class Human extends Character implements Creature {
         });
 
         System.out.println("----------------");
-
-
-        loop3: // コマンド3のループ
-        while (true) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("--------------コマンドを選択してください--------------");
-            System.out.println("""
-                    1. アイテムを使用
-                    2. 武器を装備
-                    3. 戻る
-                    """);
-            System.out.println("--------------------------------------------------");
-            System.out.print("> ");
-            String command = scanner.nextLine();
-            switch (command) {
-                case "1" -> {
-                    // アイテムの選択
-                    System.out.println("使用するアイテムを入力してください");
-                    System.out.print("> ");
-                    String itemName = scanner.nextLine();
-                    for (ItemRecord itemRecord : Human.getInventory()) {
-                        if (itemRecord.item().getName().equals(itemName)) {
-                            // 使用対象の選択
-                            System.out.println("誰に使用しますか？");
-                            System.out.print("> ");
-                            String targetHumanName = scanner.nextLine();
-                            for (Human human : party) {
-                                if (human.getName().equals(targetHumanName)) {
-                                    itemRecord.useInBack(human);
-                                    continue loop3;
-                                }
-                            }
-                            System.out.println(targetHumanName + "はいません！");
-                        }
-                    }
-                    System.out.println(itemName + "がみつかりません！");
-                }
-                case "2" -> {
-                    // 武器の選択
-                    System.out.println("使用する武器を入力してください");
-                    System.out.print("> ");
-                    String itemName = scanner.nextLine();
-                    for (ItemRecord itemRecord : Human.getInventory()) {
-                        if (itemRecord.item().getName().equals(itemName)) {
-                            // 使用対象の選択
-                            System.out.println("誰に装備しますか？");
-                            System.out.print("> ");
-                            String targetHumanName = scanner.nextLine();
-                            for (Human human : party) {
-                                if (human.getName().equals(targetHumanName)) {
-                                    itemRecord.equip(human);
-                                    continue loop3;
-                                }
-                            }
-                            System.out.println(targetHumanName + "はいません！");
-                        }
-                    }
-                    System.out.println(itemName + "がみつかりません！");
-                }
-                case "3" -> {
-                    break loop3;
-                }
-                default -> System.out.println("正しいコマンドを入力してください。");
-            }
-        }
     }
 
     // getter, setter
@@ -245,62 +181,6 @@ public abstract class Human extends Character implements Creature {
     }
 
 // getter, setter
-
-    public boolean isGardBoolean() {
-        return gardBoolean;
-    }
-
-    public void setGardBoolean(boolean gardBoolean) {
-        this.gardBoolean = gardBoolean;
-    }
-
-    public double getPowerBuff() {
-        return powerBuff;
-    }
-
-    public void setPowerBuff(double powerBuff) {
-        this.powerBuff = powerBuff;
-    }
-
-    public double getSpeedBuff() {
-        return speedBuff;
-    }
-
-    public void setSpeedBuff(double speedBuff) {
-        this.speedBuff = speedBuff;
-    }
-
-    public double getDefenseBuff() {
-        return defenseBuff;
-    }
-
-    public void setDefenseBuff(double defenseBuff) {
-        this.defenseBuff = defenseBuff;
-    }
-
-    public double getPowerUpDuration() {
-        return powerUpDuration;
-    }
-
-    public void setPowerUpDuration(double powerUpDuration) {
-        this.powerUpDuration = powerUpDuration;
-    }
-
-    public double getSpeedUpDuration() {
-        return speedUpDuration;
-    }
-
-    public void setSpeedUpDuration(double speedUpDuration) {
-        this.speedUpDuration = speedUpDuration;
-    }
-
-    public double getDefenseUpDuration() {
-        return defenseUpDuration;
-    }
-
-    public void setDefenseUpDuration(double defenseUpDuration) {
-        this.defenseUpDuration = defenseUpDuration;
-    }
 
     public static int getMoney() {
         return money;

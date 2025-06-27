@@ -34,7 +34,7 @@ public class Healer extends Human {
     }
 
     @Override
-    public void attack() {
+    public void displayAttackMessage() {
         System.out.println(this.getName() + "は杖で攻撃した！");
     }
 }

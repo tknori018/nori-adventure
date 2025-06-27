@@ -6,7 +6,8 @@ import static norisAdventure.Item.findItemRecordInInventory;
 
 public record ItemRecord(Item item, int posseesedNumber) { // inventoryの中身
 
-    public void useInCombat(Human targetHuman) {
+    public void useInBattle(Human targetHuman) {
+        Human.showInventory();
         if (this.item().getItemPosition() == ItemPosition.WEAPON_ITEM) {
             System.out.println("武器は使用できません");
         } else {
